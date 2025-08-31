@@ -7,13 +7,24 @@ COPY client/package*.json ./
 RUN npm install
 COPY client/ .
 
-# Set environment variables for HTTP-only build
+# Copy production environment file first
+COPY client/.env.production* ./
+
+# Create build-time environment file that forces HTTP
+RUN echo "HTTPS=false" > .env.production && \
+    echo "GENERATE_SOURCEMAP=false" >> .env.production && \
+    echo "PUBLIC_URL=" >> .env.production && \
+    echo "REACT_APP_SERVER_URL=" >> .env.production && \
+    echo "REACT_APP_GOOGLE_SEARCH_API_KEY=AIzaSyD63k6m7LW1uGUzKxtiZiw-LXAEfhCKh9k" >> .env.production && \
+    echo "REACT_APP_GOOGLE_SEARCH_ENGINE_ID=4477262fb312f4305" >> .env.production && \
+    echo "REACT_APP_ENABLE_REAL_SEARCH=true" >> .env.production && \
+    echo "REACT_APP_ENABLE_ANALYTICS=false" >> .env.production
+
+# Build with explicit HTTP settings
+ENV NODE_ENV=production
 ENV HTTPS=false
 ENV GENERATE_SOURCEMAP=false
 ENV PUBLIC_URL=
-
-# Copy production environment file if it exists
-COPY client/.env.production* ./
 
 RUN npm run build
 
