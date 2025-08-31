@@ -38,7 +38,71 @@ cd /opt/search-party
 
 ## 🔄 Deployment Methods
 
-### Method 1: Manual Deployment (Recommended for first-time)
+### Method 1: GitHub Repository Deployment (Recommended)
+
+### Method 1: GitHub Repository Deployment (Recommended)
+
+Deploy directly from the GitHub repository for the latest version:
+
+**Option A: One-Command Deployment**
+```bash
+# SSH into droplet and run the deployment script
+ssh root@YOUR_DROPLET_IP
+curl -fsSL https://raw.githubusercontent.com/Phantasm0009/search_party/main/deploy-github.sh | bash
+```
+
+**Option B: Manual GitHub Deployment**
+```bash
+# SSH into droplet
+ssh root@YOUR_DROPLET_IP
+
+# Install dependencies (if not already installed)
+apt update && apt upgrade -y
+curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+apt install docker-compose git -y
+
+# Navigate to app directory
+cd /opt
+
+# Clone the repository
+git clone https://github.com/Phantasm0009/search_party.git
+cd search_party
+
+# Create production environment file
+cp .env.production .env
+# Edit .env if needed: nano .env
+```
+
+```bash
+# Build the application
+docker-compose up -d --build
+
+# Check if containers are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f search-party
+```
+
+**For updates:**
+```bash
+# Pull latest changes
+cd /opt/search_party
+git pull origin main
+
+# Rebuild and restart
+docker-compose down
+docker-compose up -d --build
+
+# Clean up old images
+docker system prune -f
+```
+
+### Method 2: Local Build and Upload
+
+### Method 2: Local Build and Upload
+
+If you want to build locally and upload to your droplet:
 
 1. **Prepare your local environment**:
 ```bash
@@ -76,7 +140,7 @@ docker-compose ps
 docker-compose logs -f
 ```
 
-### Method 2: Automated Deployment Script
+### Method 3: Automated Deployment Script
 
 1. **Set environment variable**:
 ```bash
@@ -94,6 +158,38 @@ chmod +x deploy.sh
 After successful deployment:
 - **App URL**: `http://YOUR_DROPLET_IP:5000`
 - **Health Check**: `http://YOUR_DROPLET_IP:5000/api/health`
+
+## ⚙️ Environment Configuration
+
+The app includes a pre-configured `.env.production` file with sensible defaults. Key settings:
+
+```bash
+# Production configuration
+NODE_ENV=production
+PORT=5000
+
+# Optional: Google Search API (app works without these)
+GOOGLE_SEARCH_API_KEY=your-api-key
+GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
+
+# Optional: Database (currently uses in-memory storage)
+MONGODB_URI=your-mongodb-connection-string
+
+# Security
+JWT_SECRET=your-secure-random-string
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+**To customize your deployment:**
+```bash
+# Edit environment variables
+cd /opt/search_party
+nano .env
+
+# Restart containers to apply changes
+docker-compose restart
+```
 
 ## 🔒 Security Setup (Optional but Recommended)
 
@@ -218,10 +314,28 @@ docker-compose logs search-party
 # Restart specific service
 docker-compose restart search-party
 
-# Rebuild from scratch
+# Rebuild from scratch (fixes package-lock issues)
 docker-compose down
 docker-compose build --no-cache
 docker-compose up -d
+
+# If build fails with npm ci errors, update lock files locally first:
+# cd client && npm install && cd ../server && npm install && cd ..
+# Then rebuild: docker-compose build --no-cache
+```
+
+### Common Build Issues
+
+**NPM Lock File Mismatch**: If you see `npm ci` errors about package-lock.json sync:
+```bash
+# Option 1: Rebuild without cache
+docker-compose build --no-cache
+
+# Option 2: Update lock files locally first
+cd /opt/search_party
+rm -rf client/node_modules server/node_modules
+cd client && npm install && cd ../server && npm install && cd ..
+docker-compose build --no-cache
 ```
 
 ## 🎯 Performance Optimization

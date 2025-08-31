@@ -31,13 +31,38 @@ mkdir -p /opt/search-party
 
 ## 3. Deploy App
 
-### Option A: PowerShell (Windows)
+### Option A: One-Command Deployment (Easiest)
+```bash
+# SSH into your droplet and run one command
+ssh root@YOUR_DROPLET_IP
+curl -fsSL https://raw.githubusercontent.com/Phantasm0009/search_party/main/deploy-github.sh | bash
+```
+
+### Option B: GitHub Clone (Recommended)
+```bash
+# SSH into your droplet
+ssh root@YOUR_DROPLET_IP
+
+# Clone the repository
+cd /opt
+git clone https://github.com/Phantasm0009/search_party.git
+cd search_party
+
+# Create production environment
+cp .env.production .env
+# Edit .env if needed: nano .env
+
+# Deploy with Docker
+docker-compose up -d --build
+```
+
+### Option C: PowerShell (Windows)
 ```powershell
 # In your Search Party directory
 .\deploy.ps1 -DropletIP YOUR_DROPLET_IP
 ```
 
-### Option B: Manual Steps
+### Option D: Manual Steps
 ```bash
 # Build frontend
 cd client && npm run build && cd ..

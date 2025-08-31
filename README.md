@@ -116,24 +116,35 @@ npm run dev
 
 ### Quick Deploy to DigitalOcean
 
-Deploy your Search Party app to the cloud in minutes:
+Deploy your Search Party app to the cloud in minutes using GitHub:
 
 1. **Create a DigitalOcean droplet** (Ubuntu 22.04, 2GB RAM minimum)
-2. **Run the deployment script:**
-
-```powershell
-# Windows PowerShell
-.\deploy.ps1 -DropletIP YOUR_DROPLET_IP
-```
+2. **Deploy from GitHub repository:**
 
 ```bash
-# Linux/Mac
-chmod +x deploy.sh
-export DO_DROPLET_IP=YOUR_DROPLET_IP
-./deploy.sh
+# SSH into your droplet
+ssh root@YOUR_DROPLET_IP
+
+# Install Docker and clone repository
+apt update && apt upgrade -y
+curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+apt install docker-compose git -y
+
+# Deploy the app
+cd /opt
+git clone https://github.com/Phantasm0009/search_party.git
+cd search_party
+cp .env.production .env
+docker-compose up -d --build
 ```
 
 3. **Access your app**: `http://YOUR_DROPLET_IP:5000`
+
+**Alternative methods:**
+```powershell
+# Windows PowerShell (local build)
+.\deploy.ps1 -DropletIP YOUR_DROPLET_IP
+```
 
 📋 **For detailed deployment instructions**: See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 📋 **For quick deployment steps**: See [QUICK_DEPLOY.md](QUICK_DEPLOY.md)
