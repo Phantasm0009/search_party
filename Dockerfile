@@ -6,6 +6,15 @@ WORKDIR /app/client
 COPY client/package*.json ./
 RUN npm install
 COPY client/ .
+
+# Set environment variables for HTTP-only build
+ENV HTTPS=false
+ENV GENERATE_SOURCEMAP=false
+ENV PUBLIC_URL=
+
+# Copy production environment file if it exists
+COPY client/.env.production* ./
+
 RUN npm run build
 
 # Production stage
