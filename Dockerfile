@@ -20,7 +20,7 @@ RUN echo "HTTPS=false" > .env.production && \
     echo "REACT_APP_ENABLE_REAL_SEARCH=true" >> .env.production && \
     echo "REACT_APP_ENABLE_ANALYTICS=false" >> .env.production
 
-# Build with explicit HTTP settings
+# Build with explicit HTTP settings using custom build script
 ENV NODE_ENV=production
 ENV HTTPS=false
 ENV GENERATE_SOURCEMAP=false
